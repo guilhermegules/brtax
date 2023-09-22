@@ -1,0 +1,5 @@
+spring:
+    datasource:
+        password: brtax
+        username: brtax
+        url: jdbc:postgresql://localhost/brtax

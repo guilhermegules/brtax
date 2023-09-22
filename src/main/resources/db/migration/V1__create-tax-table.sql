@@ -1,0 +1,5 @@
+CREATE TABLE tax (
+    id VARCHAR(36) NOT NULL PRIMARY KEY,
+    name VARCHAR(32) NOT NULL,
+    aliquot DECIMAL(3, 2) NOT NULL
+);
