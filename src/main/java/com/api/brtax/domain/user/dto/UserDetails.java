@@ -1,6 +1,6 @@
-package com.api.brtax.domain.user;
+package com.api.brtax.domain.user.dto;
 
-import java.util.UUID;
+import com.api.brtax.domain.user.UserType;
 
-public record UserDetails(UUID id, String name, String cpf, UserType type) {
+public record UserDetails(String id, String name, String cpf, UserType type) {
 }
