@@ -3,7 +3,8 @@ package com.api.brtax.controller;
 import com.api.brtax.domain.user.dto.UserDetails;
 import com.api.brtax.domain.user.UserService;
 import com.api.brtax.domain.user.dto.SaveUser;
-import com.api.brtax.domain.user.exceptions.UserNotFoundException;
+import com.api.brtax.exception.BusinessException;
+import java.util.Arrays;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,7 +28,9 @@ public class UserController {
     try {
       var user = userService.getUserById(userId);
       return ResponseEntity.ok(user);
-    } catch (UserNotFoundException userNotFoundException) {
+    } catch (BusinessException businessException) {
+      // TODO: add properly logging
+      System.out.println(Arrays.toString(businessException.getStackTrace()));
       return ResponseEntity.notFound().build();
     }
   }

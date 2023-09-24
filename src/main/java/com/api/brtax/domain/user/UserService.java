@@ -2,7 +2,6 @@ package com.api.brtax.domain.user;
 
 import com.api.brtax.domain.user.dto.SaveUser;
 import com.api.brtax.domain.user.dto.UserDetails;
-import com.api.brtax.domain.user.exceptions.UserNotFoundException;
 
 import com.api.brtax.exception.BusinessException;
 import java.util.Arrays;
@@ -19,7 +18,7 @@ public class UserService {
     public UserDetails getUserById(String id) {
         return userRepository.findById(id)
                 .map(user -> new UserDetails(user.getId(), user.getName(), user.getCpf(), user.getType()))
-                .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + id));
+                .orElseThrow(() -> new BusinessException("User not found with ID: " + id));
     }
 
     public SaveUser save(SaveUser saveUser) {
@@ -58,6 +57,8 @@ public class UserService {
     private boolean cpfValidator(String cpf) {
         if(cpf == null) return false;
 
-        return (!cpf.contains(".") || !cpf.contains("-")) && !cpf.isEmpty();
+        if(cpf.length() < 11) return false;
+
+        return !cpf.contains(".") || !cpf.contains("-");
     }
 }
