@@ -4,7 +4,9 @@ import com.api.brtax.domain.user.dto.UserDetails;
 import com.api.brtax.domain.user.UserService;
 import com.api.brtax.domain.user.dto.SaveUser;
 import com.api.brtax.exception.BusinessException;
-import java.util.Arrays;
+
+import java.util.UUID;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("user")
+@Slf4j
 public class UserController {
   private final UserService userService;
 
@@ -24,13 +27,12 @@ public class UserController {
   }
 
   @GetMapping("/{userId}")
-  public ResponseEntity<UserDetails> getUserById(@PathVariable String userId) {
+  public ResponseEntity<UserDetails> getUserById(@PathVariable UUID userId) {
     try {
       var user = userService.getUserById(userId);
       return ResponseEntity.ok(user);
     } catch (BusinessException businessException) {
-      // TODO: add properly logging
-      System.out.println(Arrays.toString(businessException.getStackTrace()));
+      log.error("Error finding user", businessException);
       return ResponseEntity.notFound().build();
     }
   }

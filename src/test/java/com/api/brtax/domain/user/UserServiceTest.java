@@ -10,6 +10,7 @@ import com.api.brtax.exception.BusinessException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -23,10 +24,10 @@ class UserRepositoryMock implements UserRepository {
 
   public void addTwoUsers() {
     var user1 = new User("Test 1", "123456", "222", UserType.ACCOUNTANT);
-    user1.setId("1");
+    user1.setId(UUID.randomUUID());
     users.add(user1);
     var user2 = new User("Test 2", "123456", "222", UserType.ACCOUNTANT);
-    user2.setId("2");
+    user2.setId(UUID.randomUUID());
     users.add(user2);
   }
 
@@ -46,12 +47,12 @@ class UserRepositoryMock implements UserRepository {
   }
 
   @Override
-  public Optional<User> findById(String id) {
-    return users.stream().findFirst();
+  public Optional<User> findById(UUID id) {
+    return Optional.empty();
   }
 
   @Override
-  public boolean existsById(String s) {
+  public boolean existsById(UUID uuid) {
     return false;
   }
 
@@ -61,7 +62,7 @@ class UserRepositoryMock implements UserRepository {
   }
 
   @Override
-  public Iterable<User> findAllById(Iterable<String> strings) {
+  public Iterable<User> findAllById(Iterable<UUID> strings) {
     return null;
   }
 
@@ -71,7 +72,7 @@ class UserRepositoryMock implements UserRepository {
   }
 
   @Override
-  public void deleteById(String s) {
+  public void deleteById(UUID uuid) {
 
   }
 
@@ -81,7 +82,7 @@ class UserRepositoryMock implements UserRepository {
   }
 
   @Override
-  public void deleteAllById(Iterable<? extends String> strings) {
+  public void deleteAllById(Iterable<? extends UUID> strings) {
 
   }
 
@@ -108,7 +109,7 @@ public class UserServiceTest {
 
   @Test
   public void shouldGetUserById() {
-    assertInstanceOf(UserDetails.class, userService.getUserById("1"));
+    assertInstanceOf(UserDetails.class, userService.getUserById(UUID.randomUUID()));
   }
 
   @Test
@@ -116,7 +117,7 @@ public class UserServiceTest {
     userRepositoryMock.clearUserList();
 
     Throwable error = assertThrows(BusinessException.class, () -> {
-      userService.getUserById("1");
+      userService.getUserById(UUID.randomUUID());
     });
 
     assertEquals("User not found with ID: 1", error.getMessage());

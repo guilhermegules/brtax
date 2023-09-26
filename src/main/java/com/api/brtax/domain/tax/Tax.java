@@ -1,6 +1,5 @@
 package com.api.brtax.domain.tax;
 
-import jakarta.annotation.Generated;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;
 
