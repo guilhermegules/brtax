@@ -5,6 +5,7 @@ import com.api.brtax.domain.user.dto.UserDetails;
 
 import com.api.brtax.exception.BusinessException;
 import java.util.Arrays;
+import java.util.UUID;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -15,7 +16,7 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-    public UserDetails getUserById(String id) {
+    public UserDetails getUserById(UUID id) {
         return userRepository.findById(id)
                 .map(user -> new UserDetails(user.getId(), user.getName(), user.getCpf(), user.getType()))
                 .orElseThrow(() -> new BusinessException("User not found with ID: " + id));

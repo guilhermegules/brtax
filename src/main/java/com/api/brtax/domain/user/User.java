@@ -1,5 +1,6 @@
 package com.api.brtax.domain.user;
 
+import java.util.UUID;
 import lombok.Getter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;
@@ -8,7 +9,7 @@ import org.springframework.data.relational.core.mapping.Table;
 @Table(name = "brtax_user")
 public class User {
     @Id
-    private String id;
+    private UUID id;
     private final String name;
     private final String cpf;
     private final String password;
@@ -21,7 +22,7 @@ public class User {
         this.type = type;
     }
 
-    public void setId(String id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 }
