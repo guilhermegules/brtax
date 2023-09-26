@@ -6,6 +6,8 @@ import com.api.brtax.domain.user.dto.UserDetails;
 
 import com.api.brtax.exception.BusinessException;
 import com.api.brtax.exception.NotFoundException;
+import com.api.brtax.util.Validator;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.UUID;
@@ -27,9 +29,7 @@ public class UserService {
   }
 
   public UUID save(SaveUser saveUser) {
-    var isValid = saveUserValidityChecker(saveUser);
-
-    if (!isValid) {
+    if (!isSavePayloadValid(saveUser)) {
       throw new BusinessException("Passed user is invalid!");
     }
 
@@ -39,16 +39,20 @@ public class UserService {
   }
 
   public User update(UUID userId, UpdateUser updateUser) {
+    if(!isUpdatePayloadValid(updateUser)) {
+      throw new BusinessException("User data for update is invalid! " + updateUser);
+    }
+
     var user =
         userRepository
             .findById(userId)
-            .map(u -> updateUserChecker(u, updateUser))
+            .map(u -> updateUserData(u, updateUser))
             .orElseThrow(() -> new NotFoundException("User not found with ID: " + userId));
 
     return userRepository.save(user);
   }
 
-  private User updateUserChecker(User user, UpdateUser updateUser) {
+  private User updateUserData(User user, UpdateUser updateUser) {
     if (!Objects.equals(user.getName(), updateUser.name()) && Objects.nonNull(updateUser.name())) {
       user.setName(updateUser.name());
     }
@@ -69,28 +73,17 @@ public class UserService {
     return user;
   }
 
-  private boolean saveUserValidityChecker(SaveUser saveUser) {
-    return emptyValidator(saveUser.password())
-        && emptyValidator(saveUser.name())
-        && cpfValidator(saveUser.cpf())
-        && userTypeValidator(saveUser.type());
+  private boolean isSavePayloadValid(SaveUser saveUser) {
+    return Validator.hasValue(saveUser.password())
+        && Validator.hasValue(saveUser.name())
+        && Validator.isValidCpf(saveUser.cpf())
+        && Validator.hasValueOnList(Arrays.asList(UserType.values()), saveUser.type());
   }
 
-  private boolean userTypeValidator(UserType type) {
-    return Arrays.asList(UserType.values()).contains(type);
-  }
-
-  private boolean emptyValidator(String value) {
-    if (value == null) return false;
-
-    return !value.isEmpty();
-  }
-
-  private boolean cpfValidator(String cpf) {
-    if (cpf == null) return false;
-
-    if (cpf.length() < 11) return false;
-
-    return !cpf.contains(".") || !cpf.contains("-");
+  private boolean isUpdatePayloadValid(UpdateUser saveUser) {
+    return Objects.nonNull(saveUser.cpf()) && Validator.isValidCpf(saveUser.cpf())
+        || Objects.nonNull(saveUser.password())
+        || Objects.nonNull(saveUser.type()) && Validator.hasValueOnList(Arrays.asList(UserType.values()), saveUser.type())
+        || Objects.nonNull(saveUser.name());
   }
 }
