@@ -80,10 +80,10 @@ public class UserService {
         && Validator.hasValueOnList(Arrays.asList(UserType.values()), saveUser.type());
   }
 
-  private boolean isUpdatePayloadValid(UpdateUser saveUser) {
-    return Objects.nonNull(saveUser.cpf()) && Validator.isValidCpf(saveUser.cpf())
-        || Objects.nonNull(saveUser.password())
-        || Objects.nonNull(saveUser.type()) && Validator.hasValueOnList(Arrays.asList(UserType.values()), saveUser.type())
-        || Objects.nonNull(saveUser.name());
+  private boolean isUpdatePayloadValid(UpdateUser updateUser) {
+    return Objects.nonNull(updateUser.cpf()) && Validator.isValidCpf(updateUser.cpf())
+        || Objects.nonNull(updateUser.password())
+        || Objects.nonNull(updateUser.type()) && Validator.hasValueOnList(Arrays.asList(UserType.values()), updateUser.type())
+        || Objects.nonNull(updateUser.name());
   }
 }
