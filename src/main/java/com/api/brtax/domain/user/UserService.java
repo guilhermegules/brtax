@@ -1,65 +1,95 @@
 package com.api.brtax.domain.user;
 
 import com.api.brtax.domain.user.dto.SaveUser;
+import com.api.brtax.domain.user.dto.UpdateUser;
 import com.api.brtax.domain.user.dto.UserDetails;
 
 import com.api.brtax.exception.BusinessException;
+import com.api.brtax.exception.NotFoundException;
+import com.api.brtax.util.Validator;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import org.springframework.stereotype.Service;
 
 @Service
 public class UserService {
-    private final UserRepository userRepository;
+  private final UserRepository userRepository;
 
-    UserService(UserRepository userRepository) {
-        this.userRepository = userRepository;
+  UserService(UserRepository userRepository) {
+    this.userRepository = userRepository;
+  }
+
+  public UserDetails getUserById(UUID id) {
+    return userRepository
+        .findById(id)
+        .map(user -> new UserDetails(user.getId(), user.getName(), user.getCpf(), user.getType()))
+        .orElseThrow(() -> new NotFoundException("User not found with ID: " + id));
+  }
+
+  public UUID save(SaveUser saveUser) {
+    if (!isSavePayloadValid(saveUser)) {
+      throw new BusinessException("Passed user is invalid!");
     }
 
-    public UserDetails getUserById(UUID id) {
-        return userRepository.findById(id)
-                .map(user -> new UserDetails(user.getId(), user.getName(), user.getCpf(), user.getType()))
-                .orElseThrow(() -> new BusinessException("User not found with ID: " + id));
+    var user = new User(saveUser.name(), saveUser.cpf(), saveUser.password(), saveUser.type());
+    var savedUser = userRepository.save(user);
+    return savedUser.getId();
+  }
+
+  public User update(UUID userId, UpdateUser updateUser) {
+    if(!isUpdatePayloadValid(updateUser)) {
+      throw new BusinessException("User data for update is invalid! " + updateUser);
     }
 
-    public SaveUser save(SaveUser saveUser) {
-        var isValid = saveUserValidityChecker(saveUser);
+    var user =
+        userRepository
+            .findById(userId)
+            .map(u -> updateUserData(u, updateUser))
+            .orElseThrow(() -> new NotFoundException("User not found with ID: " + userId));
 
-        if(!isValid) {
-            throw new BusinessException("Passed user is invalid!");
-        }
+    return userRepository.save(user);
+  }
 
-        var user = new User(
-            saveUser.name(),
-            saveUser.cpf(),
-            saveUser.password(),
-            saveUser.type());
-        userRepository.save(user);
-        return saveUser;
+  private User updateUserData(User user, UpdateUser updateUser) {
+    if (!Objects.equals(user.getName(), updateUser.name()) && Objects.nonNull(updateUser.name())) {
+      user.setName(updateUser.name());
     }
 
-    private boolean saveUserValidityChecker(SaveUser saveUser) {
-        return emptyValidator(saveUser.password())
-            && emptyValidator(saveUser.name())
-            && cpfValidator(saveUser.cpf())
-            && userTypeValidator(saveUser.type());
+    if (!Objects.equals(user.getPassword(), updateUser.password())
+        && Objects.nonNull(updateUser.password())) {
+      user.setPassword(updateUser.password());
     }
 
-    private boolean userTypeValidator(UserType type) {
-        return Arrays.asList(UserType.values()).contains(type);
+    if (!Objects.equals(user.getType(), updateUser.type()) && Objects.nonNull(updateUser.type())) {
+      user.setType(updateUser.type());
     }
 
-    private boolean emptyValidator(String value) {
-        if(value == null) return false;
-
-        return !value.isEmpty();
+    if (!Objects.equals(user.getCpf(), updateUser.cpf()) && Objects.nonNull(updateUser.cpf())) {
+      user.setCpf(updateUser.cpf());
     }
 
-    private boolean cpfValidator(String cpf) {
-        if(cpf == null) return false;
+    return user;
+  }
 
-        if(cpf.length() < 11) return false;
+  private boolean isSavePayloadValid(SaveUser saveUser) {
+    List<String> v = List.of(Arrays.toString(UserType.values()));
+    return Validator.hasValue(saveUser.password())
+        && Validator.hasValue(saveUser.name())
+        && Validator.isValidCpf(saveUser.cpf())
+        && hasValueOnList(saveUser.type());
+  }
 
-        return !cpf.contains(".") || !cpf.contains("-");
-    }
+  private boolean isUpdatePayloadValid(UpdateUser updateUser) {
+    return Objects.nonNull(updateUser.cpf()) && Validator.isValidCpf(updateUser.cpf())
+        || Objects.nonNull(updateUser.password())
+        || Objects.nonNull(updateUser.type()) && hasValueOnList(updateUser.type())
+        || Objects.nonNull(updateUser.name());
+  }
+
+  private boolean hasValueOnList(UserType type) {
+    return Arrays.asList(UserType.values()).contains(type);
+  }
 }
