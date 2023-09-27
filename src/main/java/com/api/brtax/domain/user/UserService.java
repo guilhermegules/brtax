@@ -9,6 +9,7 @@ import com.api.brtax.exception.NotFoundException;
 import com.api.brtax.util.Validator;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 import org.springframework.stereotype.Service;
@@ -74,16 +75,21 @@ public class UserService {
   }
 
   private boolean isSavePayloadValid(SaveUser saveUser) {
+    List<String> v = List.of(Arrays.toString(UserType.values()));
     return Validator.hasValue(saveUser.password())
         && Validator.hasValue(saveUser.name())
         && Validator.isValidCpf(saveUser.cpf())
-        && Validator.hasValueOnList(Arrays.asList(UserType.values()), saveUser.type());
+        && hasValueOnList(saveUser.type());
   }
 
   private boolean isUpdatePayloadValid(UpdateUser updateUser) {
     return Objects.nonNull(updateUser.cpf()) && Validator.isValidCpf(updateUser.cpf())
         || Objects.nonNull(updateUser.password())
-        || Objects.nonNull(updateUser.type()) && Validator.hasValueOnList(Arrays.asList(UserType.values()), updateUser.type())
+        || Objects.nonNull(updateUser.type()) && hasValueOnList(updateUser.type())
         || Objects.nonNull(updateUser.name());
+  }
+
+  private boolean hasValueOnList(UserType type) {
+    return Arrays.asList(UserType.values()).contains(type);
   }
 }

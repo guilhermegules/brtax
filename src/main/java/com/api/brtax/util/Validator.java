@@ -17,8 +17,4 @@ public class Validator {
 
     return !cpf.contains(".") || !cpf.contains("-");
   }
-
-  public static boolean hasValueOnList(List<Object> list, Object value) {
-    return list.contains(value);
-  }
 }
