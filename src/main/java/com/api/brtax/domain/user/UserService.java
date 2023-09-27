@@ -75,7 +75,6 @@ public class UserService {
   }
 
   private boolean isSavePayloadValid(SaveUser saveUser) {
-    List<String> v = List.of(Arrays.toString(UserType.values()));
     return Validator.hasValue(saveUser.password())
         && Validator.hasValue(saveUser.name())
         && Validator.isValidCpf(saveUser.cpf())
