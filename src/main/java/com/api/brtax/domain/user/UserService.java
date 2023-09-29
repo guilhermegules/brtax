@@ -10,15 +10,13 @@ import com.api.brtax.util.Validator;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.UUID;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Service
+@AllArgsConstructor
 public class UserService {
   private final UserRepository userRepository;
-
-  UserService(UserRepository userRepository) {
-    this.userRepository = userRepository;
-  }
 
   public UserDetails getUserById(UUID id) {
     return userRepository
