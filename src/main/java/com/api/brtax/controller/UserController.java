@@ -4,12 +4,12 @@ import com.api.brtax.domain.user.dto.UpdateUser;
 import com.api.brtax.domain.user.dto.UserDetails;
 import com.api.brtax.domain.user.UserService;
 import com.api.brtax.domain.user.dto.SaveUser;
-import com.api.brtax.exception.BusinessException;
 
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -52,5 +52,12 @@ public class UserController {
 
     return ResponseEntity.ok(
         new UserDetails(user.getId(), user.getName(), user.getCpf(), user.getType()));
+  }
+
+  @DeleteMapping("/{userId}")
+  @Transactional
+  public ResponseEntity<Object> delete(@PathVariable UUID userId) {
+    userService.delete(userId);
+    return ResponseEntity.noContent().build();
   }
 }

@@ -7,9 +7,7 @@ import com.api.brtax.domain.user.dto.UserDetails;
 import com.api.brtax.exception.BusinessException;
 import com.api.brtax.exception.NotFoundException;
 import com.api.brtax.util.Validator;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 import org.springframework.stereotype.Service;
@@ -51,6 +49,10 @@ public class UserService {
             .orElseThrow(() -> new NotFoundException("User not found with ID: " + userId));
 
     return userRepository.save(user);
+  }
+
+  public void delete(UUID userId) {
+    userRepository.deleteById(userId);
   }
 
   private User updateUserData(User user, UpdateUser updateUser) {
