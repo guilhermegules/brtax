@@ -21,7 +21,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 @RestController
 @RequestMapping("user")
-@Slf4j
 public class UserController {
   private final UserService userService;
 
