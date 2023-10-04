@@ -57,14 +57,6 @@ public class InvoiceServiceTest {
             savedInvoice.value()));
   }
 
-  /**
-   * if (Objects.isNull(saveInvoice.invoiceNumber())
-   *         || Objects.isNull(saveInvoice.period())
-   *         || saveInvoice.value() == null) {
-   *       throw new BusinessException("The passed invoice is invalid!");
-   *     }
-   */
-
   @Test
   public void shouldThrowBusinessErrorWhenInvoiceNumberIsNull() {
     Throwable error = Assertions.assertThrows(BusinessException.class, () -> {
