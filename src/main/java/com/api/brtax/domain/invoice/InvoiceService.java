@@ -9,12 +9,14 @@ import java.util.Objects;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @AllArgsConstructor
 public class InvoiceService {
   private InvoiceRepository invoiceRepository;
 
+  @Transactional
   public InvoiceDto save(SaveInvoiceDto saveInvoice) {
     if (Objects.isNull(saveInvoice.invoiceNumber())
         || Objects.isNull(saveInvoice.period())
