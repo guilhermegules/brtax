@@ -1,0 +1,1 @@
+ALTER TABLE invoice RENAME COLUMN private TO value;
