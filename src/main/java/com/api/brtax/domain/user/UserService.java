@@ -12,6 +12,7 @@ import java.util.Objects;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @AllArgsConstructor
@@ -25,6 +26,7 @@ public class UserService {
         .orElseThrow(() -> new NotFoundException("User not found with ID: " + id));
   }
 
+  @Transactional
   public UUID save(SaveUser saveUser) {
     if (!isSavePayloadValid(saveUser)) {
       throw new BusinessException("Passed user is invalid!");
@@ -35,6 +37,7 @@ public class UserService {
     return savedUser.getId();
   }
 
+  @Transactional
   public User update(UUID userId, UpdateUser updateUser) {
     if(!isUpdatePayloadValid(updateUser)) {
       throw new BusinessException("User data for update is invalid! " + updateUser);
@@ -49,6 +52,7 @@ public class UserService {
     return userRepository.save(user);
   }
 
+  @Transactional
   public void delete(UUID userId) {
     userRepository.deleteById(userId);
   }

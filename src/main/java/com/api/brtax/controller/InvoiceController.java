@@ -23,7 +23,6 @@ public class InvoiceController {
   private InvoiceService invoiceService;
 
   @PostMapping
-  @Transactional
   public ResponseEntity<InvoiceDto> save(@RequestBody SaveInvoiceDto saveInvoice, UriComponentsBuilder uriBuilder) {
     var savedInvoice = invoiceService.save(saveInvoice);
     var uri = uriBuilder.path("/invoice/{invoiceId}").buildAndExpand(savedInvoice.id()).toUri();

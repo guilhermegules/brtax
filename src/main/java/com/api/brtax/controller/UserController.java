@@ -35,7 +35,6 @@ public class UserController {
   }
 
   @PostMapping
-  @Transactional
   public ResponseEntity<SaveUser> save(
       @RequestBody SaveUser body, UriComponentsBuilder uriBuilder) {
     var userId = userService.save(body);
@@ -44,7 +43,6 @@ public class UserController {
   }
 
   @PutMapping("/{userId}")
-  @Transactional
   public ResponseEntity<UserDetails> update(
       @PathVariable UUID userId, @RequestBody UpdateUser body) {
     var user = userService.update(userId, body);
@@ -54,7 +52,6 @@ public class UserController {
   }
 
   @DeleteMapping("/{userId}")
-  @Transactional
   public ResponseEntity<Object> delete(@PathVariable UUID userId) {
     userService.delete(userId);
     return ResponseEntity.noContent().build();
