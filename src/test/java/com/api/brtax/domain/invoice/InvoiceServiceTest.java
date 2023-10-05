@@ -1,7 +1,9 @@
 package com.api.brtax.domain.invoice;
 
+import com.api.brtax.domain.invoice.dto.InvoiceDetails;
 import com.api.brtax.domain.invoice.dto.InvoiceDto;
 import com.api.brtax.domain.invoice.dto.SaveInvoiceDto;
+import com.api.brtax.domain.invoice.dto.UpdateInvoiceDto;
 import com.api.brtax.exception.BusinessException;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -59,32 +61,116 @@ public class InvoiceServiceTest {
 
   @Test
   public void shouldThrowBusinessErrorWhenInvoiceNumberIsNull() {
-    Throwable error = Assertions.assertThrows(BusinessException.class, () -> {
-      var today = LocalDateTime.now();
-      var saveInvoiceDto = new SaveInvoiceDto(null, today, new BigDecimal("100"));
-      invoiceService.save(saveInvoiceDto);
-    });
+    Throwable error =
+        Assertions.assertThrows(
+            BusinessException.class,
+            () -> {
+              var today = LocalDateTime.now();
+              var saveInvoiceDto = new SaveInvoiceDto(null, today, new BigDecimal("100"));
+              invoiceService.save(saveInvoiceDto);
+            });
 
     Assertions.assertEquals(error.getMessage(), "The passed invoice is invalid!");
   }
 
   @Test
   public void shouldThrowBusinessErrorWhenPeriodIsNull() {
-    Throwable error = Assertions.assertThrows(BusinessException.class, () -> {
-      var saveInvoiceDto = new SaveInvoiceDto("123", null, new BigDecimal("100"));
-      invoiceService.save(saveInvoiceDto);
-    });
+    Throwable error =
+        Assertions.assertThrows(
+            BusinessException.class,
+            () -> {
+              var saveInvoiceDto = new SaveInvoiceDto("123", null, new BigDecimal("100"));
+              invoiceService.save(saveInvoiceDto);
+            });
 
     Assertions.assertEquals(error.getMessage(), "The passed invoice is invalid!");
   }
 
   @Test
   public void shouldThrowBusinessErrorWhenValueIsNull() {
-    Throwable error = Assertions.assertThrows(BusinessException.class, () -> {
-      var saveInvoiceDto = new SaveInvoiceDto("123", LocalDateTime.now(), null);
-      invoiceService.save(saveInvoiceDto);
-    });
+    Throwable error =
+        Assertions.assertThrows(
+            BusinessException.class,
+            () -> {
+              var saveInvoiceDto = new SaveInvoiceDto("123", LocalDateTime.now(), null);
+              invoiceService.save(saveInvoiceDto);
+            });
 
     Assertions.assertEquals(error.getMessage(), "The passed invoice is invalid!");
+  }
+
+  /**
+   * public InvoiceDetails update(UUID id, UpdateInvoiceDto updateInvoice) { var invoice =
+   * invoiceRepository .findById(id) .map((i) -> invoiceUpdateMapper(i, updateInvoice))
+   * .orElseThrow(() -> new NotFoundException("Invoice not found with the given ID: " + id));
+   *
+   * <p>var updatedInvoice = invoiceRepository.save(invoice);
+   *
+   * <p>return new InvoiceDetails( updatedInvoice.getInvoiceNumber(), updatedInvoice.getPeriod(),
+   * updatedInvoice.getValue()); }
+   *
+   * <p>private Invoice invoiceUpdateMapper(Invoice invoice, UpdateInvoiceDto updateInvoiceDto) {
+   * return new Invoice( updateInvoiceDto.invoiceNumber() == null ? invoice.getInvoiceNumber() :
+   * updateInvoiceDto.invoiceNumber(), updateInvoiceDto.period() == null ? invoice.getPeriod() :
+   * updateInvoiceDto.period(), updateInvoiceDto.value() == null ? invoice.getValue() :
+   * updateInvoiceDto.value()); }
+   */
+  @Test
+  public void shouldUpdateInvoiceWithAllBodyValues() {
+    var id = UUID.randomUUID();
+    var invoice = new Invoice("123", LocalDateTime.now(), new BigDecimal("100"));
+    invoice.setId(id);
+    var newDate = LocalDateTime.now();
+    var updateInvoice = new UpdateInvoiceDto("222", newDate, new BigDecimal("200"));
+    Mockito.when(invoiceRepository.findById(id)).thenReturn(Optional.of(invoice));
+
+    var updatedInvoice = invoiceService.update(id, updateInvoice);
+
+    Assertions.assertEquals(
+        updatedInvoice,
+        new InvoiceDetails(
+            updateInvoice.invoiceNumber(), updateInvoice.period(), updateInvoice.value()));
+  }
+
+  @Test
+  public void shouldUpdateInvoiceWithInvoiceNumberNull() {
+    var id = UUID.randomUUID();
+    var invoice = new Invoice("123", LocalDateTime.now(), new BigDecimal("100"));
+    invoice.setId(id);
+    var newDate = LocalDateTime.now();
+    var updateInvoice = new UpdateInvoiceDto(null, newDate, new BigDecimal("200"));
+    Mockito.when(invoiceRepository.findById(id)).thenReturn(Optional.of(invoice));
+
+    var updatedInvoice = invoiceService.update(id, updateInvoice);
+
+    Assertions.assertEquals(
+        updatedInvoice,
+        new InvoiceDetails(
+            invoice.getInvoiceNumber(), updateInvoice.period(), updateInvoice.value()));
+  }
+
+  @Test
+  public void shouldUpdateInvoiceWithPeriodAndValueNull() {
+    var id = UUID.randomUUID();
+    var invoice = new Invoice("123", LocalDateTime.now(), new BigDecimal("100"));
+    invoice.setId(id);
+    var updateInvoice = new UpdateInvoiceDto("222", null, null);
+    Mockito.when(invoiceRepository.findById(id)).thenReturn(Optional.of(invoice));
+
+    var updatedInvoice = invoiceService.update(id, updateInvoice);
+
+    Assertions.assertEquals(
+        updatedInvoice,
+        new InvoiceDetails(
+            updateInvoice.invoiceNumber(), invoice.getPeriod(), invoice.getValue()));
+  }
+
+  @Test
+  public void shouldThrowBusinessExceptionWhenAllDtoFieldsAreNull() {
+    Throwable error = Assertions.assertThrows(BusinessException.class, () -> {
+      invoiceService.update(null, new UpdateInvoiceDto(null, null, null));
+    });
+
+    Assertions.assertEquals(error.getMessage(), "Body need to have at least one field with value!");
   }
 }
