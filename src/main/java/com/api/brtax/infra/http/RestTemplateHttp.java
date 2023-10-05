@@ -16,9 +16,8 @@ public class RestTemplateHttp implements HttpAdapter {
   RestTemplateBuilder restTemplateBuilder;
 
   @Override
-  public <T> T request(String url, HttpMethod httpMethod) {
-    return restTemplate().exchange(url, httpMethod, null, new ParameterizedTypeReference<T>() {})
-        .getBody();
+  public <T> T request(String url, HttpMethod httpMethod, Class<T> classType) {
+    return restTemplate().exchange(url, httpMethod, null, classType).getBody();
   }
 
   @Bean

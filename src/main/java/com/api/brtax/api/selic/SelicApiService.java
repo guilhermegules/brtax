@@ -17,7 +17,7 @@ public class SelicApiService {
   private final static String SELIC_API_URL = "https://brasilapi.com.br/api/taxas/v1/SELIC";
 
   public Selic getSelicValue() {
-    var request = restTemplateHttp.<Map<String, Object>>request(SELIC_API_URL, HttpMethod.GET);
-    return new Selic(request.get("nome").toString(), new BigDecimal(request.get("valor").toString()));
+    var request = restTemplateHttp.request(SELIC_API_URL, HttpMethod.GET, SelicApiResponse.class);
+    return new Selic(request.nome(), request.valor());
   }
 }
