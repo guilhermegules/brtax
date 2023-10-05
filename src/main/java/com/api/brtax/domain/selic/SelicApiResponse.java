@@ -1,3 +1,5 @@
 package com.api.brtax.domain.selic;
 
-public record SelicApiResponse() {}
+import java.math.BigDecimal;
+
+public record SelicApiResponse(String nome, BigDecimal valor) {}

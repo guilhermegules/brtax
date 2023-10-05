@@ -6,8 +6,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class BrtaxApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(BrtaxApplication.class, args);
-	}
-
+  public static void main(String[] args) {
+    SpringApplication.run(BrtaxApplication.class, args);
+  }
 }
