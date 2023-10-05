@@ -99,22 +99,6 @@ public class InvoiceServiceTest {
     Assertions.assertEquals(error.getMessage(), "The passed invoice is invalid!");
   }
 
-  /**
-   * public InvoiceDetails update(UUID id, UpdateInvoiceDto updateInvoice) { var invoice =
-   * invoiceRepository .findById(id) .map((i) -> invoiceUpdateMapper(i, updateInvoice))
-   * .orElseThrow(() -> new NotFoundException("Invoice not found with the given ID: " + id));
-   *
-   * <p>var updatedInvoice = invoiceRepository.save(invoice);
-   *
-   * <p>return new InvoiceDetails( updatedInvoice.getInvoiceNumber(), updatedInvoice.getPeriod(),
-   * updatedInvoice.getValue()); }
-   *
-   * <p>private Invoice invoiceUpdateMapper(Invoice invoice, UpdateInvoiceDto updateInvoiceDto) {
-   * return new Invoice( updateInvoiceDto.invoiceNumber() == null ? invoice.getInvoiceNumber() :
-   * updateInvoiceDto.invoiceNumber(), updateInvoiceDto.period() == null ? invoice.getPeriod() :
-   * updateInvoiceDto.period(), updateInvoiceDto.value() == null ? invoice.getValue() :
-   * updateInvoiceDto.value()); }
-   */
   @Test
   public void shouldUpdateInvoiceWithAllBodyValues() {
     var id = UUID.randomUUID();
