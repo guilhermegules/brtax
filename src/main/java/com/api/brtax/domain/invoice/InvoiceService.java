@@ -61,6 +61,11 @@ public class InvoiceService {
     return new InvoiceDetails(invoice.getInvoiceNumber(), invoice.getPeriod(), invoice.getValue());
   }
 
+  @Transactional
+  public void delete(UUID invoiceId) {
+    invoiceRepository.deleteById(invoiceId);
+  }
+
   private boolean isValidPayload(UUID invoiceId, UpdateInvoiceDto updateInvoice) {
     return (updateInvoice.invoiceNumber() != null
             || updateInvoice.period() != null
