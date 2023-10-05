@@ -21,6 +21,7 @@ public class RestTemplateHttp implements HttpAdapter {
         .getBody();
   }
 
+  @Bean
   public RestTemplate restTemplate() {
     return restTemplateBuilder.build();
   }
