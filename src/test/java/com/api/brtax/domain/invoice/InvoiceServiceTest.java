@@ -157,4 +157,13 @@ public class InvoiceServiceTest {
 
     Assertions.assertEquals(error.getMessage(), "Body need to have at least one field with value!");
   }
+
+  @Test
+  public void shouldDeleteInvoice() {
+    var id = UUID.randomUUID();
+
+    invoiceService.delete(id);
+
+    Mockito.verify(invoiceRepository, Mockito.times(1)).deleteById(id);
+  }
 }

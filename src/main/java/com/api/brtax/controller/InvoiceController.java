@@ -9,6 +9,7 @@ import java.util.UUID;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -42,5 +43,11 @@ public class InvoiceController {
       UpdateInvoiceDto updateInvoiceDto) {
     var invoice = invoiceService.update(invoiceId, updateInvoiceDto);
     return ResponseEntity.ok(invoice);
+  }
+
+  @DeleteMapping("/{invoiceId}")
+  public ResponseEntity<Object> delete(@PathVariable UUID invoiceId) {
+    invoiceService.delete(invoiceId);
+    return ResponseEntity.noContent().build();
   }
 }
