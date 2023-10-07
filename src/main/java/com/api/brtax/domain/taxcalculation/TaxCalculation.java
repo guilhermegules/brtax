@@ -14,20 +14,19 @@ public class TaxCalculation {
   @Id
   public UUID id;
 
-  @Column("tax_id")
-  private final UUID taxId;
-
   @Column("user_id")
   private final UUID userId;
 
   @Column("calculated_value")
   private final BigDecimal calculatedValue;
 
-  // TODO: create tax calculation period field
-  public TaxCalculation(UUID taxId, UUID userId, BigDecimal calculatedValue,
+  @Column("tax_calculation_period")
+  private final LocalDate taxCalculationPeriod;
+
+  public TaxCalculation(UUID userId, BigDecimal calculatedValue,
       LocalDate taxCalculationPeriod) {
     this.calculatedValue = calculatedValue;
     this.userId = userId;
-    this.taxId = taxId;
+    this.taxCalculationPeriod = taxCalculationPeriod;
   }
 }

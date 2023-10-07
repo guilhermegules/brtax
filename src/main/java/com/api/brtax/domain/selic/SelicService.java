@@ -13,7 +13,7 @@ public class SelicService {
   private static final BigDecimal SELIC_DIVIDE_VALUE = new BigDecimal("12");
 
   public BigDecimal getSelicValue() {
-    var selicApiValue = new BigDecimal("12.75");
+    var selicApiValue = selicApiService.getSelicValue().value();
 
     return selicApiValue.divide(SELIC_DIVIDE_VALUE, RoundingMode.FLOOR);
   }

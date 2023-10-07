@@ -6,6 +6,7 @@ import com.api.brtax.domain.user.UserService;
 import com.api.brtax.domain.user.dto.SaveUser;
 
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,13 +21,10 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("user")
 public class UserController {
   private final UserService userService;
-
-  UserController(UserService userService) {
-    this.userService = userService;
-  }
 
   @GetMapping("/{userId}")
   public ResponseEntity<UserDetails> getUserById(@PathVariable UUID userId) {

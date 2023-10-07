@@ -6,13 +6,16 @@ import com.api.brtax.domain.selic.SelicService;
 import com.api.brtax.domain.tax.TaxService;
 import com.api.brtax.domain.tax.dto.TaxDetails;
 import com.api.brtax.domain.taxcalculation.dto.StartTaxCalculationDto;
+import com.api.brtax.domain.taxcalculation.dto.TaxCalculationResponseDto;
 import com.api.brtax.domain.user.UserService;
 import com.api.brtax.domain.user.UserType;
 import com.api.brtax.exception.BusinessException;
+import com.api.brtax.exception.NotFoundException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -29,11 +32,14 @@ public class TaxCalculationService {
   private final SelicService selicService;
 
   @Transactional
-  public void calculate(StartTaxCalculationDto startTaxCalculationDto) {
+  public TaxCalculationResponseDto calculate(StartTaxCalculationDto startTaxCalculationDto) {
     final var user = userService.getUserById(startTaxCalculationDto.userId());
 
     if (user.type() != UserType.MANAGER) {
-      throw new BusinessException("Tax calculation only should be trigger by managers!");
+      final var message =
+          String.format(
+              "Tax calculation only should be trigger by users with type: %s!", UserType.MANAGER);
+      throw new BusinessException(message);
     }
 
     final var taxes = taxService.getAll();
@@ -42,9 +48,17 @@ public class TaxCalculationService {
         invoiceService.getInvoicesInRange(
             startTaxCalculationDto.startPeriod(), startTaxCalculationDto.finalPeriod());
 
+    if (invoices.isEmpty()) {
+      final var message =
+          String.format(
+              "Tax calculation cannot be triggered without invoices in range! start period: %s, final period: %s",
+              startTaxCalculationDto.startPeriod(), startTaxCalculationDto.finalPeriod());
+      throw new BusinessException(message);
+    }
+
     final var selicValue = selicService.getSelicValue();
 
-    var totalCalculation =
+    final var totalCalculation =
         invoices.stream()
             .reduce(
                 BigDecimal.ZERO,
@@ -52,11 +66,32 @@ public class TaxCalculationService {
                     taxTotalCalculation.add(taxesReducer(invoice, taxes, selicValue)),
                 BigDecimal::add);
 
-    var taxCalculation =
-        new TaxCalculation(
-            UUID.fromString("2c4f09eb-81e3-4275-9613-d0e920b30b8e"), startTaxCalculationDto.userId(), totalCalculation, LocalDate.now());
+    final var taxCalculation =
+        new TaxCalculation(startTaxCalculationDto.userId(), totalCalculation, LocalDate.now());
 
-    taxCalculationRepository.save(taxCalculation);
+    final var taxCalculationSaved = taxCalculationRepository.save(taxCalculation);
+
+    return new TaxCalculationResponseDto(
+        taxCalculationSaved.getId(),
+        taxCalculationSaved.getUserId(),
+        taxCalculationSaved.getTaxCalculationPeriod(),
+        taxCalculationSaved.getCalculatedValue());
+  }
+
+  public TaxCalculationResponseDto getById(UUID taxCalculationId) {
+    return taxCalculationRepository
+        .findById(taxCalculationId)
+        .map(
+            taxCalculation ->
+                new TaxCalculationResponseDto(
+                    taxCalculation.getId(),
+                    taxCalculation.getUserId(),
+                    taxCalculation.getTaxCalculationPeriod(),
+                    taxCalculation.getCalculatedValue()))
+        .orElseThrow(
+            () ->
+                new NotFoundException(
+                    "Tax calculation not found with given ID: " + taxCalculationId));
   }
 
   private BigDecimal taxesReducer(
