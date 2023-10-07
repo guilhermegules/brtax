@@ -1,6 +1,6 @@
 package com.api.brtax.domain.invoice.dto;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
-public record UpdateInvoiceDto(String invoiceNumber, LocalDateTime period, BigDecimal value) {}
+public record UpdateInvoiceDto(String invoiceNumber, LocalDate period, BigDecimal value) {}

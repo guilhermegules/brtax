@@ -29,7 +29,7 @@ public class InvoiceController {
   public ResponseEntity<InvoiceDto> save(@RequestBody SaveInvoiceDto saveInvoice, UriComponentsBuilder uriBuilder) {
     var savedInvoice = invoiceService.save(saveInvoice);
     var uri = uriBuilder.path("/invoice/{invoiceId}").buildAndExpand(savedInvoice.id()).toUri();
-    return ResponseEntity.created(uri).build();
+    return ResponseEntity.created(uri).body(savedInvoice);
   }
 
   @GetMapping("/{invoiceId}")
