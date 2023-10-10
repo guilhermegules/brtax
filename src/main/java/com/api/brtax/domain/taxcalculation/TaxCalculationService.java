@@ -15,6 +15,7 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -59,25 +60,31 @@ public class TaxCalculationService {
 
     final var taxCalculationGroupId = UUID.randomUUID();
 
-    return invoices.stream()
-        .map(
-            invoice -> {
-              final var invoiceCalculated =
-                  invoice.value().add(taxesReducer(invoice, taxes, selicValue));
-              final var taxCalculation =
-                  new TaxCalculation(
+    final var taxCalculations =
+        invoices.stream()
+            .map(
+                invoice -> {
+                  final var invoiceCalculated =
+                      invoice.value().add(taxesReducer(invoice, taxes, selicValue));
+                  return new TaxCalculation(
                       startTaxCalculationDto.userId(),
                       invoiceCalculated,
                       invoice.period(),
                       taxCalculationGroupId);
-              final var taxCalculationSaved = taxCalculationRepository.save(taxCalculation);
-              return new TaxCalculationResponseDto(
-                  taxCalculationSaved.getId(),
-                  taxCalculationSaved.getUserId(),
-                  taxCalculationSaved.getTaxCalculationPeriod(),
-                  taxCalculationSaved.getCalculatedValue(),
-                  taxCalculation.getTaxCalculationGroupId());
-            })
+                })
+            .collect(Collectors.toList());
+
+    final var savedCalculations = taxCalculationRepository.saveAll(taxCalculations);
+
+    return StreamSupport.stream(savedCalculations.spliterator(), false)
+        .map(
+            taxCalculation ->
+                new TaxCalculationResponseDto(
+                    taxCalculation.getId(),
+                    taxCalculation.getUserId(),
+                    taxCalculation.getTaxCalculationPeriod(),
+                    taxCalculation.getCalculatedValue(),
+                    taxCalculation.getTaxCalculationGroupId()))
         .collect(Collectors.toList());
   }
 
