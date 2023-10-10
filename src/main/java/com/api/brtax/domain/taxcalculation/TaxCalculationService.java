@@ -12,7 +12,6 @@ import com.api.brtax.domain.user.UserType;
 import com.api.brtax.exception.BusinessException;
 import com.api.brtax.exception.NotFoundException;
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -32,7 +31,7 @@ public class TaxCalculationService {
   private final SelicService selicService;
 
   @Transactional
-  public TaxCalculationResponseDto calculate(StartTaxCalculationDto startTaxCalculationDto) {
+  public List<TaxCalculationResponseDto> calculate(StartTaxCalculationDto startTaxCalculationDto) {
     final var user = userService.getUserById(startTaxCalculationDto.userId());
 
     if (user.type() != UserType.MANAGER) {
@@ -58,40 +57,49 @@ public class TaxCalculationService {
 
     final var selicValue = selicService.getSelicValue();
 
-    final var totalCalculation =
-        invoices.stream()
-            .reduce(
-                BigDecimal.ZERO,
-                (taxTotalCalculation, invoice) ->
-                    taxTotalCalculation.add(taxesReducer(invoice, taxes, selicValue)),
-                BigDecimal::add);
+    final var taxCalculationGroupId = UUID.randomUUID();
 
-    final var taxCalculation =
-        new TaxCalculation(startTaxCalculationDto.userId(), totalCalculation, LocalDate.now());
-
-    final var taxCalculationSaved = taxCalculationRepository.save(taxCalculation);
-
-    return new TaxCalculationResponseDto(
-        taxCalculationSaved.getId(),
-        taxCalculationSaved.getUserId(),
-        taxCalculationSaved.getTaxCalculationPeriod(),
-        taxCalculationSaved.getCalculatedValue());
+    return invoices.stream()
+        .map(
+            invoice -> {
+              final var invoiceCalculated =
+                  invoice.value().add(taxesReducer(invoice, taxes, selicValue));
+              final var taxCalculation =
+                  new TaxCalculation(
+                      startTaxCalculationDto.userId(),
+                      invoiceCalculated,
+                      invoice.period(),
+                      taxCalculationGroupId);
+              final var taxCalculationSaved = taxCalculationRepository.save(taxCalculation);
+              return new TaxCalculationResponseDto(
+                  taxCalculationSaved.getId(),
+                  taxCalculationSaved.getUserId(),
+                  taxCalculationSaved.getTaxCalculationPeriod(),
+                  taxCalculationSaved.getCalculatedValue(),
+                  taxCalculation.getTaxCalculationGroupId());
+            })
+        .collect(Collectors.toList());
   }
 
-  public TaxCalculationResponseDto getById(UUID taxCalculationId) {
+  public List<TaxCalculationResponseDto> getByTaxCalculationGroupId(UUID taxCalculationGroupId) {
     return taxCalculationRepository
-        .findById(taxCalculationId)
+        .findAllTaxCalculationByTaxCalculationGroupId(taxCalculationGroupId)
         .map(
             taxCalculation ->
-                new TaxCalculationResponseDto(
-                    taxCalculation.getId(),
-                    taxCalculation.getUserId(),
-                    taxCalculation.getTaxCalculationPeriod(),
-                    taxCalculation.getCalculatedValue()))
+                taxCalculation.stream()
+                    .map(
+                        calculation ->
+                            new TaxCalculationResponseDto(
+                                calculation.getId(),
+                                calculation.getUserId(),
+                                calculation.getTaxCalculationPeriod(),
+                                calculation.getCalculatedValue(),
+                                calculation.getTaxCalculationGroupId())))
         .orElseThrow(
             () ->
                 new NotFoundException(
-                    "Tax calculation not found with given ID: " + taxCalculationId));
+                    "Tax calculation not found with given group ID: " + taxCalculationGroupId))
+        .collect(Collectors.toList());
   }
 
   private BigDecimal taxesReducer(

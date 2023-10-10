@@ -23,10 +23,14 @@ public class TaxCalculation {
   @Column("tax_calculation_period")
   private final LocalDate taxCalculationPeriod;
 
+  @Column("tax_calculation_group_id")
+  private final UUID taxCalculationGroupId;
+
   public TaxCalculation(UUID userId, BigDecimal calculatedValue,
-      LocalDate taxCalculationPeriod) {
+      LocalDate taxCalculationPeriod, UUID taxCalculationGroupId) {
     this.calculatedValue = calculatedValue;
     this.userId = userId;
     this.taxCalculationPeriod = taxCalculationPeriod;
+    this.taxCalculationGroupId = taxCalculationGroupId;
   }
 }

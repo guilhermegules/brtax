@@ -3,5 +3,6 @@ CREATE TABLE IF NOT EXISTS tax_calculation (
   user_id UUID NOT NULL,
   calculated_value DECIMAL(10, 2) NOT NULL,
   tax_calculation_period DATE NOT NULL,
+  tax_calculation_group_id UUID NOT NULL,
   CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES brtax_user(id)
 );

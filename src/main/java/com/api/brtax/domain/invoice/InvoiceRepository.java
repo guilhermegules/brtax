@@ -10,8 +10,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface InvoiceRepository extends CrudRepository<Invoice, UUID> {
-  @Query("SELECT * FROM invoice WHERE invoice.period BETWEEN :start_period and :final_period")
+  @Query("SELECT * FROM invoice WHERE invoice.period BETWEEN :startPeriod and :finalPeriod")
   List<Invoice> getAllInvoicesInPeriod(
-      @Param("start_period") LocalDate startPeriod,
-      @Param("final_period") LocalDate finalPeriod);
+      @Param("startPeriod") LocalDate startPeriod, @Param("finalPeriod") LocalDate finalPeriod);
 }

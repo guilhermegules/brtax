@@ -8,4 +8,5 @@ public record TaxCalculationResponseDto(
     UUID taxCalculationId,
     UUID userRequesterId,
     LocalDate taxCalculationDate,
-    BigDecimal taxCalculationValue) {}
+    BigDecimal taxCalculationValue,
+    UUID taxCalculationGroupId) {}
