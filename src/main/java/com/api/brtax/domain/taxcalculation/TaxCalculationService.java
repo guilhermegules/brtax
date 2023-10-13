@@ -23,7 +23,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class TaxCalculationService {
   private final TaxCalculationRepository taxCalculationRepository;
   private final UserService userService;
