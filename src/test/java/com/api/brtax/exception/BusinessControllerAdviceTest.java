@@ -166,7 +166,35 @@ class BusinessControllerAdviceTest {
         businessControllerAdvice.handleBusinessException(
             new BusinessException(exceptionMessage), webRequest);
     var apiErrorMessage =
-        new ApiErrorMessage(HttpStatus.NOT_FOUND, exceptionMessage);
+        new ApiErrorMessage(HttpStatus.BAD_REQUEST, exceptionMessage);
+
+    Assertions.assertEquals(
+        responseEntity.getStatusCode(),
+        new ResponseEntity<>(apiErrorMessage, new HttpHeaders(), apiErrorMessage.getStatus()).getStatusCode());
+  }
+
+  @Test
+  public void shouldReturnResponseEntityWithExternalApiClientException() {
+    final var exceptionMessage = "external api client exception";
+    var responseEntity =
+        businessControllerAdvice.handleExternalApiClientException(
+            new ExternalApiClientException(exceptionMessage), webRequest);
+    var apiErrorMessage =
+        new ApiErrorMessage(HttpStatus.BAD_REQUEST, exceptionMessage);
+
+    Assertions.assertEquals(
+        responseEntity.getStatusCode(),
+        new ResponseEntity<>(apiErrorMessage, new HttpHeaders(), apiErrorMessage.getStatus()).getStatusCode());
+  }
+
+  @Test
+  public void shouldReturnResponseEntityWithExternalApiServerException() {
+    final var exceptionMessage = "external api server exception";
+    var responseEntity =
+        businessControllerAdvice.handleExternalApiServerException(
+            new ExternalApiServerException(exceptionMessage), webRequest);
+    var apiErrorMessage =
+        new ApiErrorMessage(HttpStatus.INTERNAL_SERVER_ERROR, exceptionMessage);
 
     Assertions.assertEquals(
         responseEntity.getStatusCode(),
