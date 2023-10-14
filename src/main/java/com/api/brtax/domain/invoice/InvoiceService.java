@@ -6,8 +6,11 @@ import com.api.brtax.domain.invoice.dto.SaveInvoiceDto;
 import com.api.brtax.domain.invoice.dto.UpdateInvoiceDto;
 import com.api.brtax.exception.BusinessException;
 import com.api.brtax.exception.NotFoundException;
+import java.time.LocalDate;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -64,6 +67,16 @@ public class InvoiceService {
   @Transactional
   public void delete(UUID invoiceId) {
     invoiceRepository.deleteById(invoiceId);
+  }
+
+  public List<InvoiceDetails> getInvoicesInRange(
+      LocalDate startPeriod, LocalDate finalPeriod) {
+    return invoiceRepository.getAllInvoicesInPeriod(startPeriod, finalPeriod).stream()
+        .map(
+            invoice ->
+                new InvoiceDetails(
+                    invoice.getInvoiceNumber(), invoice.getPeriod(), invoice.getValue()))
+        .collect(Collectors.toList());
   }
 
   private boolean isValidPayload(UUID invoiceId, UpdateInvoiceDto updateInvoice) {

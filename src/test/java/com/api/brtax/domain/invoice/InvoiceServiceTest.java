@@ -6,7 +6,7 @@ import com.api.brtax.domain.invoice.dto.SaveInvoiceDto;
 import com.api.brtax.domain.invoice.dto.UpdateInvoiceDto;
 import com.api.brtax.exception.BusinessException;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.Optional;
 import java.util.UUID;
 import static org.mockito.ArgumentMatchers.any;
@@ -14,11 +14,14 @@ import static org.mockito.ArgumentMatchers.any;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+@ExtendWith(MockitoExtension.class)
 public class InvoiceServiceTest {
   @InjectMocks InvoiceService invoiceService;
 
@@ -33,7 +36,7 @@ public class InvoiceServiceTest {
   @Test
   public void shouldGetInvoiceById() {
     var randomId = UUID.randomUUID();
-    var date = LocalDateTime.now();
+    var date = LocalDate.now();
     var invoice = new Invoice("123", date, new BigDecimal("100"));
     Mockito.when(invoiceRepository.findById(any())).thenReturn(Optional.of(invoice));
     invoiceService.getInvoiceById(randomId);
@@ -42,7 +45,7 @@ public class InvoiceServiceTest {
 
   @Test
   public void shouldSaveInvoice() {
-    var today = LocalDateTime.now();
+    var today = LocalDate.now();
     var saveInvoiceDto = new SaveInvoiceDto("123", today, new BigDecimal("100"));
     var invoice = new Invoice(saveInvoiceDto.invoiceNumber(), today, new BigDecimal("100"));
     var id = UUID.randomUUID();
@@ -65,7 +68,7 @@ public class InvoiceServiceTest {
         Assertions.assertThrows(
             BusinessException.class,
             () -> {
-              var today = LocalDateTime.now();
+              var today = LocalDate.now();
               var saveInvoiceDto = new SaveInvoiceDto(null, today, new BigDecimal("100"));
               invoiceService.save(saveInvoiceDto);
             });
@@ -92,7 +95,7 @@ public class InvoiceServiceTest {
         Assertions.assertThrows(
             BusinessException.class,
             () -> {
-              var saveInvoiceDto = new SaveInvoiceDto("123", LocalDateTime.now(), null);
+              var saveInvoiceDto = new SaveInvoiceDto("123", LocalDate.now(), null);
               invoiceService.save(saveInvoiceDto);
             });
 
@@ -102,9 +105,9 @@ public class InvoiceServiceTest {
   @Test
   public void shouldUpdateInvoiceWithAllBodyValues() {
     var id = UUID.randomUUID();
-    var invoice = new Invoice("123", LocalDateTime.now(), new BigDecimal("100"));
+    var invoice = new Invoice("123", LocalDate.now(), new BigDecimal("100"));
     invoice.setId(id);
-    var newDate = LocalDateTime.now();
+    var newDate = LocalDate.now();
     var updateInvoice = new UpdateInvoiceDto("222", newDate, new BigDecimal("200"));
     Mockito.when(invoiceRepository.findById(id)).thenReturn(Optional.of(invoice));
 
@@ -119,9 +122,9 @@ public class InvoiceServiceTest {
   @Test
   public void shouldUpdateInvoiceWithInvoiceNumberNull() {
     var id = UUID.randomUUID();
-    var invoice = new Invoice("123", LocalDateTime.now(), new BigDecimal("100"));
+    var invoice = new Invoice("123", LocalDate.now(), new BigDecimal("100"));
     invoice.setId(id);
-    var newDate = LocalDateTime.now();
+    var newDate = LocalDate.now();
     var updateInvoice = new UpdateInvoiceDto(null, newDate, new BigDecimal("200"));
     Mockito.when(invoiceRepository.findById(id)).thenReturn(Optional.of(invoice));
 
@@ -136,7 +139,7 @@ public class InvoiceServiceTest {
   @Test
   public void shouldUpdateInvoiceWithPeriodAndValueNull() {
     var id = UUID.randomUUID();
-    var invoice = new Invoice("123", LocalDateTime.now(), new BigDecimal("100"));
+    var invoice = new Invoice("123", LocalDate.now(), new BigDecimal("100"));
     invoice.setId(id);
     var updateInvoice = new UpdateInvoiceDto("222", null, null);
     Mockito.when(invoiceRepository.findById(id)).thenReturn(Optional.of(invoice));

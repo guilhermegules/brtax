@@ -22,6 +22,6 @@ public class RestTemplateHttp implements HttpAdapter {
 
   @Bean
   public RestTemplate restTemplate() {
-    return restTemplateBuilder.build();
+    return restTemplateBuilder.errorHandler(new RestTemplateResponseErrorHandler()).build();
   }
 }
